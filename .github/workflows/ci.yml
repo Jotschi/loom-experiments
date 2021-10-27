@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: sormuras/download-jdk@v1.1.2
+      - uses: sormuras/download-jdk@v1
         with:
           feature: Loom
       - uses: actions/checkout@v2
