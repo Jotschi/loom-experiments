@@ -12,20 +12,20 @@ jobs:
         with:
           feature: Loom
       - uses: actions/checkout@v2
-      - name: Install JDK 8
-        uses: actions/setup-java@v2
-        with:
-          java-version: 8
-          distribution: temurin
       - name: Install JDK 11
         uses: actions/setup-java@v2
         with:
           java-version: ${{ env.JDK_VERSION }}
           distribution: 'jdkfile'
           jdkFile: ${{ env.JDK_FILE }}
+      - name: Install JDK 8
+        uses: actions/setup-java@v2
+        with:
+          java-version: 8
+          distribution: temurin
       - name: JVM
         run: java --version
       - name: Path
-        run: bash -c 'echo $PATH'
+        run: bash -c 'set | grep JAVA'
       - name: Build with Maven
-        run: mvn --batch-mode --update-snapshots verify
+        run: JAVA_HOME=$JAVA_HOME_8_x86 mvn --batch-mode --update-snapshots verify

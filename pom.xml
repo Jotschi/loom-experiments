@@ -49,6 +49,10 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>${maven.compiler.plugin.version}</version>
+				<configuration>
+					<fork>true</fork>
+					<executable>${env.JAVA_HOME_8_X64}/bin/javac</executable>
+				</configuration>
 				<executions>
 					<execution>
 						<id>jdk18</id>
@@ -57,6 +61,8 @@
 							<goal>compile</goal>
 						</goals>
 						<configuration>
+							<fork>true</fork>
+							<executable>${env.JAVA_HOME_18_X64}/bin/javac</executable>
 							<source>18</source>
 							<target>18</target>
 							<release>18</release>
