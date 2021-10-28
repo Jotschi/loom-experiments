@@ -6,6 +6,16 @@
 	<artifactId>loom-experiments</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 
+	<properties>
+		<maven.compiler.plugin.version>3.7.0</maven.compiler.plugin.version>
+		<maven.surefire.plugin.version>3.0.0-M5</maven.surefire.plugin.version>
+		<maven.jar.plugin.version>3.2.0</maven.jar.plugin.version>
+		<mven.resource.plugin.version>3.2.0</mven.resource.plugin.version>
+		<maven.compiler.release>8</maven.compiler.release>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+	</properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
@@ -19,13 +29,26 @@
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>${maven.surefire.plugin.version}</version>
+				<executions>
+					<execution>
+						<id>java-18</id>
+						<configuration>
+							<systemProperties>
+								<expect-java18>false</expect-java18>
+							</systemProperties>
+							<additionalClasspathElements>
+								<additionalClasspathElement>${project.build.outputDirectory}/META-INF/versions/18</additionalClasspathElement>
+							</additionalClasspathElements>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.7.0</version>
-				<configuration>
-					<source>18</source>
-					<target>18</target>
-					<compilerVersion>18</compilerVersion>
-				</configuration>
+				<version>${maven.compiler.plugin.version}</version>
 				<executions>
 					<execution>
 						<id>jdk18</id>
@@ -36,11 +59,40 @@
 						<configuration>
 							<source>18</source>
 							<target>18</target>
+							<release>18</release>
 							<compilerVersion>18</compilerVersion>
+
+							<verbose>true</verbose>
 							<compileSourceRoots>
 								<compileSourceRoot>src/main/java18</compileSourceRoot>
 							</compileSourceRoots>
 							<outputDirectory>${project.build.outputDirectory}/META-INF/versions/18/</outputDirectory>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<!-- <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-resources-plugin</artifactId> 
+				<version>${maven.resource.plugin.version}</version> <executions> <execution> 
+				<id>copy-java-18-classes</id> <phase>generate-test-resources</phase> <goals> 
+				<goal>copy-resources</goal> </goals> <configuration> <outputDirectory>${project.build.directory}/META-INF/versions/18</outputDirectory> 
+				<resources> <resource> <directory>src/test/classpath</directory> </resource> 
+				</resources> </configuration> </execution> </executions> </plugin> -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>${maven.jar.plugin.version}</version>
+				<executions>
+					<execution>
+						<id>default-jar</id>
+						<configuration>
+							<archive>
+								<manifest>
+									<mainClass>de.jotschi.jvm.Runner</mainClass>
+								</manifest>
+								<manifestEntries>
+									<Multi-Release>true</Multi-Release>
+								</manifestEntries>
+							</archive>
 						</configuration>
 					</execution>
 				</executions>

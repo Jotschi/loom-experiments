@@ -15,17 +15,15 @@ public final class JavaCompatUtil {
 	 * @return true if the provided thread is a virtual one.
 	 */
 	public static boolean isVirtual(Thread thread) {
-		if (thread == null) {
-			return false;
-		}
-		return thread.isVirtual();
+		return false;
 	}
-	
+
 	public static void startVirtualThread(Runnable runnable) {
-		Thread.startVirtualThread(runnable);
+		runnable.run();
 	}
 
 	public static boolean supportsVirtualThreads() {
-		return true;
+		return false;
 	}
+
 }
