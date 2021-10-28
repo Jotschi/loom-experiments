@@ -32,24 +32,6 @@
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<version>${maven.surefire.plugin.version}</version>
-				<executions>
-					<execution>
-						<id>java-18</id>
-						<configuration>
-							<systemProperties>
-								<expect-java18>false</expect-java18>
-							</systemProperties>
-							<additionalClasspathElements>
-								<additionalClasspathElement>${project.build.outputDirectory}/META-INF/versions/18</additionalClasspathElement>
-							</additionalClasspathElements>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>${maven.compiler.plugin.version}</version>
 				<executions>
@@ -66,8 +48,6 @@
 							<target>18</target>
 							<release>18</release>
 							<compilerVersion>18</compilerVersion>
-							<verbose>true</verbose>
-							<debug>true</debug>
 							<compileSourceRoots>
 								<compileSourceRoot>src/main/java18</compileSourceRoot>
 							</compileSourceRoots>
@@ -76,12 +56,35 @@
 					</execution>
 				</executions>
 			</plugin>
-			<!-- <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-resources-plugin</artifactId> 
-				<version>${maven.resource.plugin.version}</version> <executions> <execution> 
-				<id>copy-java-18-classes</id> <phase>generate-test-resources</phase> <goals> 
-				<goal>copy-resources</goal> </goals> <configuration> <outputDirectory>${project.build.directory}/META-INF/versions/18</outputDirectory> 
-				<resources> <resource> <directory>src/test/classpath</directory> </resource> 
-				</resources> </configuration> </execution> </executions> </plugin> -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>${maven.surefire.plugin.version}</version>
+				<executions>
+					<execution>
+						<id>default-test</id>
+						<goals>
+							<goal>test</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>java-18</id>
+						<goals>
+							<goal>test</goal>
+						</goals>
+						<configuration>
+							<jvm>${env.JAVA_HOME_18}/bin/java</jvm>
+							<forkCount>1</forkCount>
+							<reuseForks>false</reuseForks>
+							<systemProperties>
+								<expect-java18>true</expect-java18>
+							</systemProperties>
+							<classesDirectory>${project.build.outputDirectory}/META-INF/versions/18</classesDirectory>
+							<reportNameSuffix>java-18</reportNameSuffix>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
