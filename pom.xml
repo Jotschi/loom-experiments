@@ -61,7 +61,6 @@
 							<target>18</target>
 							<release>18</release>
 							<compilerVersion>18</compilerVersion>
-
 							<verbose>true</verbose>
 							<compileSourceRoots>
 								<compileSourceRoot>src/main/java18</compileSourceRoot>
