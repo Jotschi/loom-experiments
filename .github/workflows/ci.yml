@@ -23,11 +23,7 @@ jobs:
         with:
           java-version: 8
           distribution: temurin
-      #- name: JVM
-      #  run: java -version || true
-      - name: Path
-        run: bash -c 'export JAVA_HOME_18_x86=/opt/hostedtoolcache/Java_jdkfile_jdk/18/x64'
-      - name: Path2
-        run: bash -c 'set | grep JAVA' || true
       - name: Build with Maven
         run: mvn --batch-mode --update-snapshots verify
+        env: 
+          JAVA_HOME_18_x86: /opt/hostedtoolcache/Java_jdkfile_jdk/18/x64
