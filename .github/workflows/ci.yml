@@ -24,8 +24,8 @@ jobs:
           java-version: 8
           distribution: temurin
       - name: JVM
-        run: java --version
+        run: java --version || true
       - name: Path
-        run: bash -c 'set | grep JAVA'
+        run: bash -c 'set | grep JAVA' || true
       - name: Build with Maven
         run: JAVA_HOME=$JAVA_HOME_8_x86 mvn --batch-mode --update-snapshots verify
