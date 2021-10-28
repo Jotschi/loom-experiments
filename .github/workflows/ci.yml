@@ -26,7 +26,7 @@ jobs:
       #- name: JVM
       #  run: java -version || true
       - name: Path
-        run: bash -c 'set | grep JVM' || true
+        run: bash -c 'export JAVA_HOME_18_x86=/opt/hostedtoolcache/Java_jdkfile_jdk/18/x64'
       - name: Path2
         run: bash -c 'set | grep JAVA' || true
       - name: Build with Maven
