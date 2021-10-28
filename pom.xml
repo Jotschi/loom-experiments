@@ -34,6 +34,12 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>${maven.compiler.plugin.version}</version>
+				<configuration>
+					<compileSourceRoots>
+						<compileSourceRoot>src/main/java</compileSourceRoot>
+						<compileSourceRoot>src/main/java8</compileSourceRoot>
+					</compileSourceRoots>
+				</configuration>
 				<executions>
 					<execution>
 						<id>jdk18</id>
@@ -81,6 +87,25 @@
 							</systemProperties>
 							<classesDirectory>${project.build.outputDirectory}/META-INF/versions/18</classesDirectory>
 							<reportNameSuffix>java-18</reportNameSuffix>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>add-source</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>add-source</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<source>${project.basedir}/src/main/java18/</source>
+								<source>${project.basedir}/src/main/java8/</source>
+							</sources>
 						</configuration>
 					</execution>
 				</executions>

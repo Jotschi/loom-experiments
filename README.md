@@ -6,8 +6,8 @@ This repo is used to test project loom code and maven multi release builds for J
 ## Building
 
 ```
-JAVA_HOME=/opt/jvm/java8
-JAVA_HOME_18=/opt/jvm/java18
+export JAVA_HOME=/opt/jvm/java8
+export JAVA_HOME_18=/opt/jvm/java18
 mvn clean verify
 ```
 
