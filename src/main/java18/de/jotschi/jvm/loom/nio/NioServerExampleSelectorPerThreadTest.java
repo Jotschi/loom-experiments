@@ -7,9 +7,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.nio.channels.spi.SelectorProvider;
 import java.util.Iterator;
-import java.util.concurrent.ThreadFactory;
 
 import org.junit.Test;
 
@@ -23,6 +21,7 @@ public class NioServerExampleSelectorPerThreadTest {
   private final static int THREAD_COUNT = 100;
 
   @Test
+  @SuppressWarnings("preview")
   public void testServer() throws IOException {
 
     InetSocketAddress addr = new InetSocketAddress("localhost", PORT);
@@ -41,13 +40,8 @@ public class NioServerExampleSelectorPerThreadTest {
 
     System.err.println("Server running on http://127.0.0.1:" + PORT + '/');
 
-    ThreadFactory executor = Thread.ofVirtual().factory();
-
-    // for (int i = 0; i < THREAD_COUNT; i++) {
-    // executor.newThread(() -> {
-    // try {
     // Open our selector channel
-    Selector selector = SelectorProvider.provider().openSelector();
+    Selector selector = Selector.open();
 
     // Register an "Accept" event on our selector service which will let us know when sockets connect to our channel
     SelectionKey acceptKey = acceptor.register(selector, SelectionKey.OP_ACCEPT);
@@ -74,24 +68,47 @@ public class NioServerExampleSelectorPerThreadTest {
         try {
           if (currentKey.isAcceptable()) {
             accept(currentKey);
+            // Now create a virtual thread which will handle the connection read/write
+            Thread.startVirtualThread(() -> {
+              System.out.println("Running thread");
+              try {
+                while (true) {
+
+                    while (selectorIt.hasNext()) {
+                      System.out.println("Got virt key");
+                      SelectionKey virtCurrentKey = selectorIt.next();
+                      selectorIt.remove();
+
+                      // skip any invalidated keys
+                      if (!virtCurrentKey.isValid()) {
+                        continue;
+                      }
+
+                      if (virtCurrentKey.isReadable()) {
+                        System.out.println("Handle read");
+                        try {
+                          client.handleRead();
+
+                          String request = client.readMessage();
+                          if (request.endsWith("*/*")) {
+                            System.out.println("handle write");
+                            client.sendMessage(createResponse());
+                            client.handleWrite();
+                            client.disconnect();
+                          }
+                        } catch (Exception e) {
+                          e.printStackTrace();
+                        }
+                      }
+
+                    }
+                  }
+              } catch (Throwable t) {
+                t.printStackTrace();
+              }
+            });
           }
 
-          if (currentKey.isReadable()) {
-            client.handleRead();
-
-            String request = client.readMessage();
-            if (request.endsWith("*/*")) {
-              client.sendMessage(createResponse());
-              client.handleWrite();
-              client.disconnect();
-            }
-          }
-
-          // if (currentKey.isWritable()) {
-          // System.out.println("Writing");
-          // client.handleWrite();
-          // client.disconnect();
-          // }
         } catch (Exception e) {
           e.printStackTrace();
           // Disconnect the user if we have any errors during processing, you can add your own custom logic here
@@ -111,29 +128,29 @@ public class NioServerExampleSelectorPerThreadTest {
     // System.out.println("Wait for termination. Press enter to stop server.");
   }
 
-  private static void accept(SelectionKey key) throws IOException {
+  private static void accept(SelectionKey acceptKey) throws IOException {
+
     // 'Accept' selection keys contain a reference to the parent server-socket channel rather than their own socket
-    ServerSocketChannel channel = (ServerSocketChannel) key.channel();
+    ServerSocketChannel channel = (ServerSocketChannel) acceptKey.channel();
 
     // Accept the socket's connection
     SocketChannel socket = channel.accept();
-
-    // You can get the IPV6 Address (if available) of the connected user like so:
-    String ipAddress = socket.socket().getInetAddress().getHostAddress();
+    System.out.println("Accepted connection");
 
     // We also want this socket to be non-blocking so we don't need to follow the thread-per-socket model
     socket.configureBlocking(false);
 
-    // Let's also register this socket to our selector:
-    // We are going to listen for two events (Read and Write).
-    // These events tell us when the socket has bytes available to read, or if the buffer is available to write
-    SelectionKey k = socket.register(key.selector(), SelectionKey.OP_READ | SelectionKey.OP_WRITE);
+    System.out.println("Registered selector key");
+    SelectionKey virtKey = socket.register(acceptKey.selector(), SelectionKey.OP_READ | SelectionKey.OP_WRITE);
     // We are only interested in events for reads for our selector.
-    k.interestOps(SelectionKey.OP_READ);
+    virtKey.interestOps(SelectionKey.OP_READ);
+    // You can get the IPV6 Address (if available) of the connected user like so:
+    String ipAddress = socket.socket().getInetAddress().getHostAddress();
 
     // Here you can bind an object to the key as an attachment should you so desire.
     // This could be a reference to an object or anything else.
-    k.attach(new Client(ipAddress, socket, k));
+    virtKey.attach(new Client(ipAddress, socket, virtKey));
+
   }
 
   private String createResponse() {
